@@ -1,0 +1,69 @@
+plugins {
+    id 'com.github.ben-manes.versions' version '0.42.0'
+}
+
+apply plugin: 'maven-publish'
+
+apply plugin: 'java-library'
+apply plugin: 'eclipse'
+
+group = "com.bookkeepersmc"
+version = "1.0.1"
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    modularity.inferModulePath.set(true)
+    withJavadocJar()
+    withSourcesJar()
+}
+allprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+
+    repositories {
+        mavenCentral()
+    }
+
+    java {
+        withSourcesJar()
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+}
+
+javadoc {
+    options {
+        addStringOption("Xdoclint:none", "-quiet")
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation('org.ow2.asm:asm:9.2')
+    implementation("org.apache.logging.log4j:log4j-api:2.17.1")
+    compileOnly('org.jetbrains:annotations:24.1.0')
+    api('net.jodah:typetools:0.6.3')
+}
+
+def ENV = System.getenv()
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            from components.java
+            pom {
+                name = "Entrypoint-Utils"
+                description = "Utilities for creating mod entrypoints"
+            }
+        }
+    }
+    repositories {
+        maven {
+            url ENV.MAVEN_URL
+        }
+    }
+}
